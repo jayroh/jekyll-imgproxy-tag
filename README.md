@@ -2,8 +2,7 @@ jekyll-imgproxy-tag
 ===================
 
 `jekyll-imgproxy-tag` is a jekyll plugin that provides a Liquid tag that
-generates a fully secure, fully qualified url to an image asset served via the
-[imgproxy] tool.
+generates a fully secure, fully qualified url to an image asset stored on Amazon S3, and served via the [imgproxy] tool.
 
 Example tag:
 
@@ -22,9 +21,9 @@ It is an image optimizer written in Go that you can self-host as an alternative
 to the larger commercial image optimization services like Imgix, Filestack,
 Cloudinary, et al.
 
-More information can be found on the [imgproxy docs website].
+More information can be found on the [imgproxy website].
 
-[imgproxy docs website]: https://docs.imgproxy.net/
+[imgproxy website]: https://www.imgproxy.net/
 
 Ok, how do I start with this?
 -----------------------------
@@ -34,15 +33,8 @@ secure addresses to the images you are serving, so you will need to take note of
 and **key** that you are setting for your imgproxy instance. Typically these are ENV's set
 with the `IMGPROXY_KEY` and `IMGPROXY_SALT` keys.
 
-Cool. I wrote those down
-------------------------
-
-I hope you didn't actually write those down because that's not very secu...
-
-I DIDN'T WRITE THEM ON A PIECE OF PAPER. SHEESH. Continue.
-----------------------------------------------------------
-
-Oops. Ok. cool.
+Cool. I wrote those down. Now what?
+-----------------------------------
 
 In your Gemfile, add this gem:
 
@@ -84,8 +76,8 @@ imgproxy:
   aws_bucket: ENV_AWS_BUCKET
 ```
 
-How do I *USE* this?
---------------------
+Ok. Now ... how do I *USE* this?
+--------------------------------
 
 Now you're ready to use this in your pages and/or posts. The most base liquid
 tag usage is `{% imgproxy_url path: '/path/AFTER/your/bucket/dot.jpg' %}`. If
@@ -96,18 +88,35 @@ The options you may pass in to transform and optimize your image, and the
 corresponding information on their significance in imgproxy's docs, are as
 follows:
 
-* `resizing_type` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=resizing-type)
-* `width` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=width)
-* `height` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=height)
-* `gravity` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=gravity)
-* `quality` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=quality)
-* `max_bytes` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=max-bytes)
-* `cache_buster` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=cache-buster)
-* `format` [🔗📝](https://docs.imgproxy.net/generating_the_url?id=format)
-
-Examples:
-
-* `{% imgproxy_url path: '/image.jpg', width: 300, height: 400, format: 'avif' %}`
+* `resizing_type`
+  * example: `{% imgproxy_url path: '/path/image.jpg', resizing_type: 'fill' %}`
+  * Sample resizing types: `fit`, `fill`, `fill-down`, `force`, `auto`. Refer to the ...
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=resizing-type)
+* `width`
+  * example: `{% imgproxy_url path: '/path/image.jpg', width: 960 %}`
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=width)
+* `height`
+  * example: `{% imgproxy_url path: '/path/image.jpg', height: 400 %}`
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=height)
+* `gravity`
+  * example: `{% imgproxy_url path: '/path/image.jpg', gravity: 'sm' %}`
+  * Note, there are many options. Provided option, `sm`, means "smart gravity".
+  * Please refer to the [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=gravity)
+* `quality`
+  * example: `{% imgproxy_url path: '/path/image.jpg', quality: '85' %}`
+  * Note, this the resulting quality represented in percentage, from 0 to 100.
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=quality)
+* `max_bytes`
+  * example: `{% imgproxy_url path: '/path/image.jpg', max_bytes: '100000' %}`
+  * Note, these are ***BYTES***, not Kilobytes. (100000 bytes == 100kB)
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=max-bytes)
+* `cache_buster`
+  * example: `{% imgproxy_url path: '/path/image.jpg', cache_buster: 'string' %}`
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=cache-buster)
+* `format`
+  * example: `{% imgproxy_url path: '/path/image.jpg', format: 'webp' %}`
+  * Sample formats: `png`, `jpg`, `webp`, `avif`, `gif`, etc. More info at ...
+  * [imgproxy docs](https://docs.imgproxy.net/generating_the_url?id=format)
 
 
 Are there any gotchas?
@@ -115,7 +124,13 @@ Are there any gotchas?
 
 Hey, I'm glad you asked. There are!
 
-***Coming Soon***
+1. Currently **this plugin only works with assets that exist in Amazon S3**. Imgproxy needs to be set up to access.
+2. Ensure that your instance of imgproxy has **sufficient (IAM) access to your S3 bucket(s) via the aws key and secret**.
+3. If you're serving very large images, you may run into some issues. You can increase the max source image resolution via an environemt variable at your running imgproxy instance. For example `IMGPROXY_MAX_SRC_RESOLUTION=22.0` would allow for up to 22 megapixels. If it helps, there's [an online megapixels calculator here](https://toolstud.io/photo/megapixel.php?compare=video&calculate=uncompressed&width=1920&height=1080).
+4. Setting `IMGPROXY_DEVELOPMENT_ERRORS_MODE=1` on your imgproxy instance will provide more detailed error messages.
+
+For those of you setting up imgproxy yourself [there are many facets for configuration](https://github.com/imgproxy/imgproxy/blob/master/docs/configuration.md).
+
 
 Development
 ===========
@@ -123,11 +138,14 @@ Development
 1. Clone this repo
 2. `bundle`
 3. `bundle exec rake`
+4. New features should be paired with appropriate test coverage. (Please, and thank you.)
 
-New features should be paired with appropriate test coverage. (Please, and thank you.)
+*** 
 
 Currently not implemented but I would be thrilled to receive PR's or feedback on:
 
 - [ ] Support for [plain source URL's](https://docs.imgproxy.net/generating_the_url?id=plain).
 - [ ] Support for unsafe (unsigned) paths.
 - [ ] Support for [serving local files](https://docs.imgproxy.net/serving_local_files?id=serving-local-files).
+
+And, I'm always open for feedback - [@jayroh](https://twitter.com/jayroh) 🐦.
