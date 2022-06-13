@@ -16,6 +16,13 @@ module Jekyll
           allow(builder).to receive(:encoded_url).and_return('encoded-url')
         end
 
+        it 'raises an error if a path is not provided' do
+          options = { 'width' => 300, 'format' => 'avif' }
+
+          expect { described_class.new(config, options).build }
+            .to raise_error(Jekyll::Imgproxy::Tag::Errors::PathNotSet)
+        end
+
         it 'converts to another format' do
           options = { 'path' => '/img.jpg', 'width' => 300, 'format' => 'avif' }
           builder = described_class.new(config, options)

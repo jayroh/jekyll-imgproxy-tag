@@ -9,7 +9,6 @@ module Jekyll
         def initialize(config, options)
           @config = config
           @options = options
-          @path = @options.delete('path')
 
           @resizing_type = 'rs:fit'
           @width = ':'
@@ -20,15 +19,18 @@ module Jekyll
         def build
           options.each { |key, value| send("#{key}=".to_sym, value) }
 
+          raise Jekyll::Imgproxy::Tag::Errors::PathNotSet unless path
+
           "/#{resizing_type}#{width}#{height}#{gravity}#{quality}#{max_bytes}#{cache_buster}/#{encoded_url}#{format}"
         end
 
         protected
 
+        attr_accessor :path
+
         attr_reader \
           :config,
           :options,
-          :path,
           :resizing_type,
           :width,
           :height,

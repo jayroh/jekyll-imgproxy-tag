@@ -24,6 +24,10 @@ module Jekyll
         class BaseUrlNotSet < Error
           '"base_url" not set in Jekyll Imgproxy config'
         end
+
+        class PathNotSet < Error
+          '"path" to image is not provided'
+        end
       end
     end
   end
