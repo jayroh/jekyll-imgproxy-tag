@@ -3,7 +3,7 @@
 module Jekyll
   module Imgproxy
     class Tag < ::Liquid::Tag
-      VERSION = '0.1.0'
+      VERSION = '0.2.0'
 
       def initialize(tag_name, raw_options, tokens)
         super
