@@ -36,7 +36,7 @@ module Jekyll
         end
 
         def imgproxy_config
-          Jekyll.configuration['imgproxy']
+          @_imgproxy_config ||= Jekyll.configuration['imgproxy']
         end
       end
     end
