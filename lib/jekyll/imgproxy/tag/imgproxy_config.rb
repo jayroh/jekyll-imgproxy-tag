@@ -4,6 +4,14 @@ module Jekyll
   module Imgproxy
     class Tag
       class ImgproxyConfig
+        extend Forwardable
+
+        def_delegators :'self.class', :imgproxy_config
+
+        def self.imgproxy_config
+          @@imgproxy_config ||= Jekyll.configuration['imgproxy']
+        end
+
         attr_reader \
           :base_url,
           :key,
@@ -33,10 +41,6 @@ module Jekyll
           raise Jekyll::Imgproxy::Tag::Errors::SaltNotSet if imgproxy_config['salt'].nil?
           raise Jekyll::Imgproxy::Tag::Errors::KeyNotSet if imgproxy_config['key'].nil?
           raise Jekyll::Imgproxy::Tag::Errors::BaseUrlNotSet if imgproxy_config['base_url'].nil?
-        end
-
-        def imgproxy_config
-          @_imgproxy_config ||= Jekyll.configuration['imgproxy']
         end
       end
     end

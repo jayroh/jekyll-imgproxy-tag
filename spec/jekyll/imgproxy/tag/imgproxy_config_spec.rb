@@ -6,6 +6,7 @@ module Jekyll
       describe ImgproxyConfig do
         def stub_config_with(values)
           config_hash = values.instance_of?(String) ? yaml(values) : values
+          described_class.class_variable_set(:@@imgproxy_config, nil)
 
           allow(Jekyll)
             .to receive(:configuration)
