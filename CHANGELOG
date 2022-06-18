@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-06-18
+
+- Refactored the config class to access the Jekyll configuration object only
+once so that we're not repeatedly logging to STDOUT about its being accessed.
+
 ## [0.2.0] - 2022-06-12
 
 ### Changed
