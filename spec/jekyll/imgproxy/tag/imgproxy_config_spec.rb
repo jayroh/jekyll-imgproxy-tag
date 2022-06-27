@@ -4,23 +4,18 @@ module Jekyll
   module Imgproxy
     class Tag
       describe ImgproxyConfig do
-        def stub_config_with(values)
-          config_hash = values.instance_of?(String) ? yaml(values) : values
-          described_class.class_variable_set(:@@imgproxy_config, nil)
-
-          allow(Jekyll)
-            .to receive(:configuration)
-            .and_return(config_hash)
-        end
-
-        def yaml(filename)
-          path = "./spec/fixtures/configs/#{filename}"
-          YAML.load_file(path)
-        end
-
         it 'reads the yaml' do
-          stub_config_with('_config.yml')
-          config = described_class.new
+          context = {
+            'site' => {
+              'imgproxy' => {
+                'base_url' => 'https://imgproxy.instance',
+                'key' => 'key',
+                'salt' => 'salt',
+                'aws_bucket' => 'bucket-name',
+              }
+            }
+          }
+          config = described_class.new(context)
 
           expect(config.base_url).to eq 'https://imgproxy.instance'
           expect(config.key).to eq 'key'
@@ -29,38 +24,59 @@ module Jekyll
         end
 
         it 'raises an error if the parent imgproxy key is not set' do
-          stub_config_with({})
+          context = {
+            'site' => {}
+          }
 
-          expect { described_class.new }
+          expect { described_class.new(context) }
             .to raise_error(Jekyll::Imgproxy::Tag::Errors::ConfigNotFound)
         end
 
         it 'raises an error if the salt is not set' do
-          stub_config_with({'imgproxy' => { 'salt' => nil }})
+          context = {
+            'site' => {
+              'imgproxy' => {
+                'base_url' => 'https://imgproxy.instance',
+                'key' => 'key',
+                'salt' => nil,
+                'aws_bucket' => 'bucket-name',
+              }
+            }
+          }
 
-          expect { described_class.new }
+          expect { described_class.new(context) }
             .to raise_error(Jekyll::Imgproxy::Tag::Errors::SaltNotSet)
         end
 
         it 'raises an error if the key is not set' do
-          stub_config_with({'imgproxy' => { 'salt' => '', 'key' => nil }})
+          context = {
+            'site' => {
+              'imgproxy' => {
+                'base_url' => 'https://imgproxy.instance',
+                'key' => nil,
+                'salt' => 'salt',
+                'aws_bucket' => 'bucket-name',
+              }
+            }
+          }
 
-          expect { described_class.new }
+          expect { described_class.new(context) }
             .to raise_error(Jekyll::Imgproxy::Tag::Errors::KeyNotSet)
         end
 
         it 'raises an error if the base_url is not set' do
-          stub_config_with(
-            {
+          context = {
+            'site' => {
               'imgproxy' => {
-                'salt' => 'salt here',
-                'key' => 'key here',
-                'base_url' => nil
+                'base_url' => nil,
+                'key' => 'key',
+                'salt' => 'salt',
+                'aws_bucket' => 'bucket-name',
               }
             }
-          )
+          }
 
-          expect { described_class.new }
+          expect { described_class.new(context) }
             .to raise_error(Jekyll::Imgproxy::Tag::Errors::BaseUrlNotSet)
         end
       end

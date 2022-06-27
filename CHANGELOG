@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-06-27
+
+- Use passed in page context to access Jekyll's config instead of accessing
+`Jekyll.configuration`.
+
 ## [0.3.0] - 2022-06-18
 
 - Refactored the config class to access the Jekyll configuration object only

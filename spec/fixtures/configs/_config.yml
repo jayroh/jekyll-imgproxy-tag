@@ -1,5 +1,0 @@
-imgproxy:
-  base_url: https://imgproxy.instance
-  key: key
-  salt: salt
-  aws_bucket: bucket-name

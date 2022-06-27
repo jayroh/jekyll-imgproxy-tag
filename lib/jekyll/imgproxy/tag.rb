@@ -3,7 +3,7 @@
 module Jekyll
   module Imgproxy
     class Tag < ::Liquid::Tag
-      VERSION = '0.3.0'
+      VERSION = '0.4.0'
 
       def initialize(tag_name, raw_options, tokens)
         super
@@ -15,8 +15,8 @@ module Jekyll
         end
       end
 
-      def render(_context)
-        imgproxy_config = ImgproxyConfig.new
+      def render(context)
+        imgproxy_config = ImgproxyConfig.new(context)
         UrlGenerator.new(imgproxy_config, options).url
       end
 

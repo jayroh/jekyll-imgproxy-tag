@@ -6,19 +6,15 @@ module Jekyll
       class ImgproxyConfig
         extend Forwardable
 
-        def_delegators :'self.class', :imgproxy_config
-
-        def self.imgproxy_config
-          @@imgproxy_config ||= Jekyll.configuration['imgproxy']
-        end
-
         attr_reader \
+          :context,
           :base_url,
           :key,
           :salt,
           :aws_bucket
 
-        def initialize
+        def initialize(context)
+          @context    = context
           @base_url   = fetch_config(:base_url)
           @key        = fetch_config(:key)
           @salt       = fetch_config(:salt)
@@ -41,6 +37,10 @@ module Jekyll
           raise Jekyll::Imgproxy::Tag::Errors::SaltNotSet if imgproxy_config['salt'].nil?
           raise Jekyll::Imgproxy::Tag::Errors::KeyNotSet if imgproxy_config['key'].nil?
           raise Jekyll::Imgproxy::Tag::Errors::BaseUrlNotSet if imgproxy_config['base_url'].nil?
+        end
+
+        def imgproxy_config
+          context['site']['imgproxy']
         end
       end
     end
